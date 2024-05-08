@@ -109,6 +109,9 @@ def main():
     except OBError as e:
         config.set_align_mode(OBAlignMode.DISABLE)
         print(e)
+        breakpoint()
+
+    assert(has_color_sensor) #  or config.get_align_mode() == OBAlignMode.DISABLE)
 
     pipeline.start(config)
     saved_color_cnt: int = 0

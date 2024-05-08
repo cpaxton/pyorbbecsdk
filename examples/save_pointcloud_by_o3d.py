@@ -48,6 +48,10 @@ def save_points_to_ply(frames: FrameSet, camera_param: OBCameraParam):
         return 0
     # Convert points to Open3D point cloud
     pcd = convert_to_o3d_point_cloud(np.array(points))
+
+    #print("no color")
+    #o3d.visualization.draw_geometries([pcd])
+
     points_filename = os.path.join(save_points_dir, f"points_{depth_frame.get_timestamp()}.ply")
     # Save to PLY file
     o3d.io.write_point_cloud(points_filename, pcd)
@@ -62,6 +66,7 @@ def save_color_points_to_ply(frames: FrameSet, camera_param: OBCameraParam):
     depth_frame = frames.get_depth_frame()
     if depth_frame is None:
         return 0
+    points_depth = frames.get_point_cloud(camera_param)
     points = frames.get_color_point_cloud(camera_param)
     if points is None or len(points) == 0:
         print("No color points to save.")
@@ -70,7 +75,20 @@ def save_color_points_to_ply(frames: FrameSet, camera_param: OBCameraParam):
     # This part might need to be adjusted based on the actual format of the points array
     xyz = np.array(points[:, :3])
     colors = np.array(points[:, 3:], dtype=np.uint8)
+
+    pcd_depth = convert_to_o3d_point_cloud(np.array(points_depth))
     pcd = convert_to_o3d_point_cloud(xyz, colors)
+
+    print("color vals", np.unique(colors, axis=0))
+    print("depth only pts", np.unique(points_depth, axis=0))
+    print("xyz vals color", np.unique(xyz, axis=0))
+    
+    # Show point clouds with open3d
+    print("no color")
+    o3d.visualization.draw_geometries([pcd_depth])
+    print("color")
+    o3d.visualization.draw_geometries([pcd])
+
     points_filename = os.path.join(save_points_dir, f"color_points_{depth_frame.get_timestamp()}.ply")
     # Save to PLY file
     o3d.io.write_point_cloud(points_filename, pcd)
